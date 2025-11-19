@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cadastro de Crianças - Evento Especial</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #f97316;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --danger: #dc2626;
+      --radius-lg: 18px;
+      --shadow-md: 0 10px 25px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top left, #bfdbfe 0, #f1f5f9 36%, #e5e7eb 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1120px;
+      width: 100%;
+      margin: auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 32px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(241,245,249,0.96));
+      border-radius: 24px;
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    @media (max-width: 880px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hero {
+      padding: 32px 32px 32px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 0% 0%, rgba(59,130,246,0.1) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(249,115,22,0.08) 0, transparent 55%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(37,99,235,0.08);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 16px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 6px rgba(34,197,94,0.25);
+    }
+
+    h1 {
+      font-size: clamp(28px, 3vw, 36px);
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    h1 span.highlight {
+      color: var(--primary);
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 420px;
+      margin-bottom: 20px;
+    }
+
+    .info-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .info-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      font-size: 13px;
+      color: #0f172a;
+    }
+
+    .info-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(37,99,235,0.08);
+      font-size: 13px;
+    }
+
+    .list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 540px) {
+      .list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .list li::before {
+      content: "•";
+      color: var(--primary);
+      margin-top: 1px;
+    }
+
+    .guarantee {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .guarantee-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(16,185,129,0.08);
+      font-size: 13px;
+      color: #059669;
+    }
+
+    /* Form card */
+
+    .form-card {
+      padding: 32px 28px;
+      background: var(--card-bg);
+      border-radius: 24px 0 0 24px;
+      position: relative;
+    }
+
+    @media (max-width: 880px) {
+      .form-card {
+        border-radius: 0 0 24px 24px;
+      }
+    }
+
+    .form-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .form-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .required-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 540px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #0f172a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    label span.required {
+      color: var(--danger);
+      font-size: 12px;
+      margin-left: 4px;
+    }
+
+    input, select, textarea {
+      border-radius: 10px;
+      border: 1px solid #cbd5f5;
+      padding: 9px 11px;
+      font-size: 14px;
+      outline: none;
+      background: #f9fafb;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15);
+      background: #ffffff;
+    }
+
+    .error-message {
+      font-size: 12px;
+      color: var(--danger);
+      display: none;
+    }
+
+    .field.error input,
+    .field.error select,
+    .field.error textarea {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 1px rgba(220,38,38,0.12);
+    }
+
+    .field.error .error-message {
+      display: block;
+    }
+
+    textarea {
+      min-height: 64px;
+      resize: vertical;
+    }
+
+    .consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .consent input[type="checkbox"] {
+      margin-top: 2px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .actions {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 10px 20px rgba(37,99,235,0.35);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+      box-shadow: 0 16px 30px rgba(37,99,235,0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 14px rgba(37,99,235,0.25);
+    }
+
+    .btn-primary .emoji {
+      font-size: 17px;
+    }
+
+    .small-note {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .success-toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: #16a34a;
+      color: #ecfdf5;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 999;
+    }
+
+    .success-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .success-toast-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(236, 253, 245, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Lado esquerdo: texto do evento -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          Vagas limitadas • Evento infantil
+        </div>
+        <h1>
+          Dia Especial das Crianças
+          <span class="highlight">– Inscreva seu filho(a)</span>
+        </h1>
+        <p class="subtitle">
+          Brincadeiras, oficinas criativas, música e muita diversão em um ambiente seguro
+          e preparado para receber as crianças com todo carinho.
+        </p>
+
+        <div class="info-grid">
+          <div class="info-pill">
+            <div class="info-icon">📍</div>
+            <span>Rua Exemplo, 123 – Centro</span>
+          </div>
+          <div class="info-pill">
+            <div class="info-icon">📅</div>
+            <span>Data: 12/10 – das 9h às 13h</span>
+          </div>
+          <div class="info-pill">
+            <div class="info-icon">👶</div>
+            <span>Idade: 3 a 12 anos</span>
+          </div>
+        </div>
+
+        <ul class="list">
+          <li>Equipe treinada e estrutura pensada para o público infantil.</li>
+          <li>Atividades lúdicas, contação de histórias, jogos e pintura.</li>
+          <li>Espaço instagramável para fotos com as crianças.</li>
+          <li>Café para os responsáveis em área reservada.</li>
+        </ul>
+
+        <div class="guarantee">
+          <div class="guarantee-icon">✔</div>
+          <p>
+            A inscrição é gratuita, mas obrigatória para controle de vagas
+            e organização das atividades.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lado direito: formulário -->
+    <section class="form-card">
+      <h2 class="form-title">Faça agora o cadastro</h2>
+      <p class="form-subtitle">Preencha os dados abaixo para garantir a participação da criança no evento.</p>
+      <p class="required-hint"><span style="color: var(--danger);">*</span> Campos obrigatórios</p>
+
+      <form id="cadastroForm" novalidate>
+        <div class="field">
+          <label for="nomeResponsavel">
+            Nome do responsável <span class="required">*</span>
+          </label>
+          <input type="text" id="nomeResponsavel" name="nomeResponsavel" placeholder="Ex.: Ana Silva" required />
+          <span class="error-message">Informe o nome do responsável.</span>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="telefoneResponsavel">
+              Telefone/WhatsApp <span class="required">*</span>
+            </label>
+            <input type="tel" id="telefoneResponsavel" name="telefoneResponsavel" placeholder="(11) 99999-9999" required />
+            <span class="error-message">Informe um telefone para contato.</span>
+          </div>
+          <div class="field">
+            <label for="emailResponsavel">
+              E-mail
+            </label>
+            <input type="email" id="emailResponsavel" name="emailResponsavel" placeholder="seuemail@exemplo.com" />
+            <span class="error-message">Informe um e-mail válido ou deixe em branco.</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="nomeCrianca">
+              Nome da criança <span class="required">*</span>
+            </label>
+            <input type="text" id="nomeCrianca" name="nomeCrianca" placeholder="Ex.: João Pedro" required />
+            <span class="error-message">Informe o nome da criança.</span>
+          </div>
+          <div class="field">
+            <label for="idadeCrianca">
+              Idade <span class="required">*</span>
+            </label>
+            <input type="number" id="idadeCrianca" name="idadeCrianca" min="1" max="15" placeholder="Ex.: 7" required />
+            <span class="error-message">Informe a idade da criança.</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="turno">
+            Preferência de horário <span class="required">*</span>
+          </label>
+          <select id="turno" name="turno" required>
+            <option value="">Selecione uma opção</option>
+            <option value="manha">Manhã (9h às 11h)</option>
+            <option value="tarde">Tarde (11h às 13h)</option>
+            <option value="indiferente">Indiferente</option>
+          </select>
+          <span class="error-message">Selecione a preferência de horário.</span>
+        </div>
+
+        <div class="field">
+          <label for="observacoes">
+            Observações importantes
+          </label>
+          <textarea id="observacoes" name="observacoes" placeholder="Alergias, necessidades especiais, recados importantes etc."></textarea>
+          <span class="error-message">Verifique as informações inseridas.</span>
+        </div>
+
+        <div class="consent">
+          <input type="checkbox" id="autorizacaoImagem" name="autorizacaoImagem" />
+          <label for="autorizacaoImagem">
+            Autorizo o uso de imagem da criança para registros fotográficos e de divulgação do evento.
+          </label>
+        </div>
+
+        <div class="consent">
+          <input type="checkbox" id="consentimento" name="consentimento" required />
+          <label for="consentimento">
+            Declaro que sou responsável legal pela criança e estou ciente de que este cadastro é necessário para participação no evento.
+            <span class="required">*</span>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary">
+            <span class="emoji">🚀</span>
+            Garantir inscrição
+          </button>
+          <p class="small-note">
+            Após o envio, nossa equipe entrará em contato por WhatsApp com a confirmação e orientações finais.
+          </p>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="success-toast" id="successToast">
+    <div class="success-toast-icon">✅</div>
+    <span>Cadastro enviado com sucesso! Em breve entraremos em contato.</span>
+  </div>
+
+  <script>
+    const form = document.getElementById("cadastroForm");
+    const toast = document.getElementById("successToast");
+
+    function showToast() {
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 4000);
+    }
+
+    function validateField(fieldWrapper, inputElement, customValidator = null) {
+      const value = inputElement.value.trim();
+      let isValid = true;
+
+      if (inputElement.hasAttribute("required") && !value) {
+        isValid = false;
+      }
+
+      if (isValid && customValidator) {
+        isValid = customValidator(value);
+      }
+
+      if (!isValid) {
+        fieldWrapper.classList.add("error");
+      } else {
+        fieldWrapper.classList.remove("error");
+      }
+
+      return isValid;
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const fieldsToValidate = [
+        { id: "nomeResponsavel" },
+        { id: "telefoneResponsavel" },
+        { id: "nomeCrianca" },
+        { id: "idadeCrianca", validator: (v) => Number(v) > 0 },
+        { id: "turno" },
+        { id: "consentimento", type: "checkbox" },
+      ];
+
+      let allValid = true;
+
+      fieldsToValidate.forEach((field) => {
+        const input = document.getElementById(field.id);
+        const fieldWrapper = input.closest(".field") || input.closest(".consent");
+
+        if (field.type === "checkbox") {
+          const isChecked = input.checked;
+          if (!isChecked) {
+            fieldWrapper.classList.add("error");
+            allValid = false;
+          } else {
+            fieldWrapper.classList.remove("error");
+          }
+          return;
+        }
+
+        const isFieldValid = validateField(fieldWrapper, input, field.validator);
+        if (!isFieldValid) {
+          allValid = false;
+        }
+      });
+
+      if (!allValid) {
+        // Foca no primeiro campo com erro
+        const firstError = form.querySelector(".field.error input, .field.error select, .consent.error input");
+        if (firstError) firstError.focus();
+        return;
+      }
+
+      // Aqui você pode integrar com backend / API / Google Forms etc.
+      // Por enquanto, apenas simulamos o envio e limpamos o formulário.
+      console.log("Dados do formulário:", Object.fromEntries(new FormData(form).entries()));
+
+      form.reset();
+      showToast();
+    });
+
+    // Remove estado de erro ao digitar
+    form.addEventListener("input", (e) => {
+      const wrapper = e.target.closest(".field") || e.target.closest(".consent");
+      if (wrapper && wrapper.classList.contains("error")) {
+        wrapper.classList.remove("error");
+      }
+    });
+  </script>
+</body>
+</html>
