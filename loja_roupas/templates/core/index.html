@@ -1,0 +1,1356 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema Loja de Roupas - Django</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --bg: #0f172a;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --shadow: 0 10px 25px rgba(0,0,0,0.35);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 260px minmax(0,1fr);
+      gap: 20px;
+      max-width: 1300px;
+      width: 100%;
+      background: rgba(15,23,42,0.9);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: linear-gradient(180deg,#020617,#020617 40%,#111827);
+      border-right: 1px solid var(--border);
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .logo span {
+      color: var(--primary);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .nav {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav button {
+      border: none;
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 14px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all .2s ease;
+      white-space: nowrap;
+    }
+
+    .nav button span.icon {
+      font-size: 16px;
+    }
+
+    .nav button.active,
+    .nav button:hover {
+      background: rgba(99,102,241,0.14);
+      color: var(--text);
+    }
+
+    .nav button.active {
+      box-shadow: 0 0 0 1px rgba(129,140,248,0.6);
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-top: auto;
+      text-align: center;
+    }
+
+    /* Main */
+    .main {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .main-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .main-header h1 {
+      font-size: 22px;
+    }
+
+    .main-header small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 12px;
+    }
+
+    .kpi {
+      background: radial-gradient(circle at top left,#1e293b 0,#020617 80%);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .kpi-value {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .kpi-tag {
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .kpi-tag.positivo { color: var(--accent); }
+    .kpi-tag.negativo { color: var(--danger); }
+
+    .content {
+      background: rgba(15,23,42,0.9);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 16px;
+      min-height: 420px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+      gap: 10px 14px;
+      margin-bottom: 14px;
+      background: rgba(15,23,42,0.7);
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    input, select, textarea {
+      background: #020617;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 7px 9px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    input[type="file"] {
+      padding: 4px;
+      font-size: 12px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(129,140,248,0.4);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg,var(--primary),var(--primary-dark));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--text);
+    }
+
+    .btn-small {
+      padding: 4px 9px;
+      font-size: 11px;
+      border-radius: 999px;
+    }
+
+    .btn-danger {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    /* Tables */
+    .table-wrapper {
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: auto;
+      max-height: 260px;
+      background: #020617;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: #020617;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    th, td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #111827;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 500;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #020617;
+    }
+
+    tbody tr:hover {
+      background: rgba(55,65,81,0.5);
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 3px 7px;
+      font-size: 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .pill-green {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .pill-yellow {
+      border-color: var(--warning);
+      color: var(--warning);
+    }
+
+    .pill-red {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .empty {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px;
+    }
+
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* GRID ESTOQUE - CARDS */
+    .estoque-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .produto-card {
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    }
+
+    .produto-topo {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .produto-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #111827;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .produto-info h4 {
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .produto-info small {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .produto-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .produto-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 11px;
+    }
+
+    .produto-meta span {
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .produto-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      gap: 6px;
+    }
+
+    .produto-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    /* ########## RESPONSIVO ########## */
+
+    @media (max-width: 900px) {
+      body {
+        padding: 12px;
+      }
+
+      .app {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        border-radius: 16px;
+      }
+
+      .sidebar {
+        flex-direction: row;
+        align-items: center;
+        overflow-x: auto;
+        padding: 12px;
+        gap: 10px;
+      }
+
+      .logo, .subtitle, .tag {
+        display: none;
+      }
+
+      .nav {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        margin-top: 0;
+        gap: 6px;
+      }
+
+      .nav button {
+        font-size: 13px;
+        padding: 8px 10px;
+      }
+
+      .main {
+        padding: 12px;
+      }
+
+      .kpis {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+      }
+
+      .content {
+        padding: 12px;
+        min-height: auto;
+      }
+
+      form {
+        grid-template-columns: 1fr 1fr;
+        padding: 10px;
+      }
+
+      .table-wrapper {
+        max-height: 260px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 10px;
+      }
+
+      .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .content {
+        padding: 10px;
+      }
+
+      form {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 8px;
+      }
+
+      .kpi {
+        padding: 10px 12px;
+      }
+
+      .kpi-value {
+        font-size: 18px;
+      }
+
+      table {
+        font-size: 11px;
+      }
+
+      th, td {
+        padding: 6px 8px;
+      }
+
+      .table-wrapper {
+        max-height: 220px;
+      }
+
+      .actions {
+        flex-direction: row;
+        justify-content: flex-start;
+      }
+
+      .btn {
+        font-size: 12px;
+        padding: 7px 12px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 8px;
+      }
+
+      .app {
+        border-radius: 12px;
+        box-shadow: none;
+      }
+
+      .main-header h1 {
+        font-size: 18px;
+      }
+
+      .section-title {
+        font-size: 16px;
+      }
+
+      .nav button {
+        padding: 7px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div>
+        <div class="logo">Ecorp <span>Network</span></div>
+        <div class="subtitle">Loja de Roupas - Django</div>
+      </div>
+      <div class="nav">
+        <button class="tab-btn active" data-tab="clientes">
+          <span class="icon">🧍</span> Clientes
+        </button>
+        <button class="tab-btn" data-tab="fornecedores">
+          <span class="icon">🚚</span> Fornecedores
+        </button>
+        <button class="tab-btn" data-tab="estoque">
+          <span class="icon">👕</span> Estoque
+        </button>
+        <button class="tab-btn" data-tab="financeiro">
+          <span class="icon">💰</span> Financeiro
+        </button>
+        <button class="tab-btn" id="btnLogout">
+      <span class="icon">🚪</span> Sair
+    </button>
+      </div>
+      <div class="tag">
+        Ecorp Network
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="main-header">
+        <div>
+          <h1>Visão Geral</h1>
+          <small>Controle básico de loja de roupas (clientes, fornecedores, estoque e financeiro).</small>
+        </div>
+        <div class="kpis">
+          <div class="kpi">
+            <div class="kpi-label">Clientes</div>
+            <div class="kpi-value" id="kpiClientes">0</div>
+            <div class="kpi-tag">Cadastrados</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Fornecedores</div>
+            <div class="kpi-value" id="kpiFornecedores">0</div>
+            <div class="kpi-tag">Ativos</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Investimento atual em estoque</div>
+            <div class="kpi-value" id="kpiValorEstoque">R$ 0,00</div>
+            <div class="kpi-tag">Custo total das peças</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Total já vendido</div>
+            <div class="kpi-value" id="kpiTotalVendido">R$ 0,00</div>
+            <div class="kpi-tag positivo" id="kpiLucroTag">Aguardando vendas</div>
+          </div>
+        </div>
+      </header>
+
+      <section class="content">
+        <!-- CLIENTES -->
+        <div class="tab-content" id="tab-clientes">
+          <div class="section-title">Clientes</div>
+          <div class="section-subtitle">
+            Cadastre seus clientes para registrar vendas, contatos e histórico.
+          </div>
+
+          <form id="formCliente">
+            <div class="field">
+              <label>Nome completo</label>
+              <input type="text" id="cliNome" required>
+            </div>
+            <div class="field">
+              <label>Telefone / WhatsApp</label>
+              <input type="text" id="cliTelefone" placeholder="(11) 99999-9999">
+            </div>
+            <div class="field">
+              <label>E-mail</label>
+              <input type="email" id="cliEmail">
+            </div>
+            <div class="field">
+              <label>CPF (opcional)</label>
+              <input type="text" id="cliCpf">
+            </div>
+            <div class="field">
+              <label>Observações</label>
+              <textarea id="cliObs" placeholder="Cliente VIP, gosta de promoções, tamanho padrão..."></textarea>
+            </div>
+            <div class="actions">
+              <button type="submit" class="btn btn-primary">+ Cadastrar cliente</button>
+              <button type="button" class="btn btn-outline" id="btnLimparCliente">Limpar</button>
+            </div>
+          </form>
+
+          <div class="table-wrapper" id="listaClientesWrapper">
+            <table>
+              <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>E-mail</th>
+                <th>CPF</th>
+              </tr>
+              </thead>
+              <tbody id="tbodyClientes"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="clientesEmpty">
+            Nenhum cliente cadastrado ainda.
+          </div>
+        </div>
+
+        <!-- FORNECEDORES -->
+        <div class="tab-content" id="tab-fornecedores" style="display:none;">
+          <div class="section-title">Fornecedores</div>
+          <div class="section-subtitle">
+            Cadastre fornecedores de roupas, confecções e distribuidoras.
+          </div>
+
+          <form id="formFornecedor">
+            <div class="field">
+              <label>Nome / Razão social</label>
+              <input type="text" id="forNome" required>
+            </div>
+            <div class="field">
+              <label>Contato (responsável)</label>
+              <input type="text" id="forContato">
+            </div>
+            <div class="field">
+              <label>Telefone</label>
+              <input type="text" id="forTelefone">
+            </div>
+            <div class="field">
+              <label>E-mail</label>
+              <input type="email" id="forEmail">
+            </div>
+            <div class="field">
+              <label>CNPJ (opcional)</label>
+              <input type="text" id="forCnpj">
+            </div>
+            <div class="field">
+              <label>Observações</label>
+              <textarea id="forObs" placeholder="Condições de pagamento, prazo de entrega..."></textarea>
+            </div>
+            <div class="actions">
+              <button type="submit" class="btn btn-primary">+ Cadastrar fornecedor</button>
+              <button type="button" class="btn btn-outline" id="btnLimparFornecedor">Limpar</button>
+            </div>
+          </form>
+
+          <div class="table-wrapper" id="listaFornecedoresWrapper">
+            <table>
+              <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Contato</th>
+                <th>Telefone</th>
+                <th>E-mail</th>
+              </tr>
+              </thead>
+              <tbody id="tbodyFornecedores"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="fornecedoresEmpty">
+            Nenhum fornecedor cadastrado ainda.
+          </div>
+        </div>
+
+        <!-- ESTOQUE -->
+        <div class="tab-content" id="tab-estoque" style="display:none;">
+          <div class="section-title">Estoque de Roupas</div>
+          <div class="section-subtitle">
+            Cadastre peças de roupa com foto, tamanho, cor e controle entradas/vendas.
+          </div>
+
+          <form id="formEstoque">
+            <div class="field">
+              <label>Nome da peça</label>
+              <input type="text" id="estNome" required placeholder="Ex: Camiseta básica masculina">
+            </div>
+            <div class="field">
+              <label>Categoria</label>
+              <input type="text" id="estCategoria" placeholder="Ex: Camiseta, Calça, Vestido">
+            </div>
+            <div class="field">
+              <label>Tamanho</label>
+              <input type="text" id="estTamanho" placeholder="Ex: P, M, G, 38, 40...">
+            </div>
+            <div class="field">
+              <label>Cor</label>
+              <input type="text" id="estCor" placeholder="Ex: Preto, Branco, Jeans...">
+            </div>
+            <div class="field">
+              <label>Quantidade</label>
+              <input type="number" id="estQtd" min="0" value="0" required>
+            </div>
+            <div class="field">
+              <label>Custo unitário (R$)</label>
+              <input type="number" step="0.01" min="0" id="estCusto" value="0">
+            </div>
+            <div class="field">
+              <label>Preço de venda (R$)</label>
+              <input type="number" step="0.01" min="0" id="estPrecoVenda" value="0">
+            </div>
+            <div class="field">
+              <label>Foto da peça</label>
+              <input type="file" id="estFoto" accept="image/*">
+            </div>
+            <div class="field" style="grid-column:1/-1;">
+              <label>Descrição breve</label>
+              <textarea id="estDescricao" placeholder="Detalhes da peça, tecido, caimento, observações..."></textarea>
+            </div>
+            <div class="actions" style="grid-column:1/-1;">
+              <button type="submit" class="btn btn-primary">+ Cadastrar item</button>
+              <button type="button" class="btn btn-outline" id="btnLimparEstoque">Limpar</button>
+            </div>
+          </form>
+
+          <div class="flex-between">
+            <div class="section-subtitle" style="margin-bottom:0;">
+              Cards com mini imagem, descrição e controles de estoque (entrada / venda).
+            </div>
+          </div>
+
+          <div id="estoqueCardsWrapper">
+            <div class="empty" id="estoqueEmpty">
+              Nenhum item de estoque cadastrado ainda.
+            </div>
+            <div class="estoque-grid" id="estoqueGrid"></div>
+          </div>
+        </div>
+
+        <!-- FINANCEIRO -->
+        <div class="tab-content" id="tab-financeiro" style="display:none;">
+          <div class="section-title">Painel Financeiro</div>
+          <div class="section-subtitle">
+            Balanço simples de investimento (estoque) e saídas (vendas).
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:18px;">
+            <div class="kpi">
+              <div class="kpi-label">Investimento atual em estoque</div>
+              <div class="kpi-value" id="finInvestimentoEstoque">R$ 0,00</div>
+              <div class="kpi-tag">Custo total das peças em estoque</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Valor de venda potencial do estoque</div>
+              <div class="kpi-value" id="finPotencialEstoque">R$ 0,00</div>
+              <div class="kpi-tag">Se vender tudo pelo preço de venda</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Total já vendido</div>
+              <div class="kpi-value" id="finTotalVendido">R$ 0,00</div>
+              <div class="kpi-tag positivo">Somatório das vendas registradas</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Lucro bruto acumulado</div>
+              <div class="kpi-value" id="finLucro">R$ 0,00</div>
+              <div class="kpi-tag positivo" id="finLucroTag">Aguardando vendas</div>
+            </div>
+          </div>
+
+          <div class="section-subtitle" style="margin-top:-4px;">
+            Abaixo, o detalhamento das vendas (saídas do estoque):
+          </div>
+
+          <div class="table-wrapper" id="financeiroWrapper">
+            <table>
+              <thead>
+              <tr>
+                <th>Data</th>
+                <th>Peça</th>
+                <th>Qtd</th>
+                <th>Custo total</th>
+                <th>Venda total</th>
+                <th>Lucro</th>
+              </tr>
+              </thead>
+              <tbody id="tbodyVendas"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="financeiroEmpty">
+            Nenhuma venda registrada ainda. Use o botão "Venda" nos cards de estoque.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // URLs da API
+    const API_URLS = {
+        clientes: '/api/clientes/',
+        fornecedores: '/api/fornecedores/',
+        produtos: '/api/produtos/',
+        vendas: '/api/vendas/',
+        dashboard: '/api/dashboard/'
+    };
+
+    // Funções para API
+    async function apiGet(url) {
+        const response = await fetch(url);
+        return await response.json();
+    }
+
+    async function apiPost(url, data) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        return await response.json();
+    }
+
+    // --- ESTADO EM MEMÓRIA ---
+    let clientes = [];
+    let fornecedores = [];
+    let estoque = [];
+    let vendas = [];
+
+    // Util
+    function formatCurrency(valor) {
+      const n = Number(valor) || 0;
+      return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    // Atualizar KPIs
+    async function atualizarKPIs() {
+        try {
+            const data = await apiGet(API_URLS.dashboard);
+            
+            document.getElementById('kpiClientes').textContent = data.total_clientes;
+            document.getElementById('kpiFornecedores').textContent = data.total_fornecedores;
+            document.getElementById('kpiValorEstoque').textContent = formatCurrency(data.valor_estoque);
+            document.getElementById('kpiTotalVendido').textContent = formatCurrency(data.total_vendido);
+
+            const kpiLucroTag = document.getElementById('kpiLucroTag');
+            if (data.lucro_total > 0) {
+                kpiLucroTag.textContent = 'Lucro acumulado positivo';
+                kpiLucroTag.classList.add('positivo');
+                kpiLucroTag.classList.remove('negativo');
+            } else if (data.lucro_total < 0) {
+                kpiLucroTag.textContent = 'Prejuízo acumulado';
+                kpiLucroTag.classList.add('negativo');
+                kpiLucroTag.classList.remove('positivo');
+            } else {
+                kpiLucroTag.textContent = 'Aguardando vendas';
+                kpiLucroTag.classList.remove('positivo', 'negativo');
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar KPIs:', error);
+        }
+    }
+
+    // --- TABS ---
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        document.getElementById('tab-' + tab).style.display = 'block';
+      });
+    });
+
+    // --- CLIENTES ---
+    const formCliente = document.getElementById('formCliente');
+    const tbodyClientes = document.getElementById('tbodyClientes');
+    const clientesEmpty = document.getElementById('clientesEmpty');
+    const listaClientesWrapper = document.getElementById('listaClientesWrapper');
+
+    formCliente.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('cliNome').value.trim();
+      if (!nome) return;
+
+      try {
+        await apiPost(API_URLS.clientes, {
+            nome: nome,
+            telefone: document.getElementById('cliTelefone').value.trim(),
+            email: document.getElementById('cliEmail').value.trim(),
+            cpf: document.getElementById('cliCpf').value.trim(),
+            observacoes: document.getElementById('cliObs').value.trim()
+        });
+        
+        formCliente.reset();
+        await renderClientes();
+        await atualizarKPIs();
+      } catch (error) {
+        console.error('Erro ao cadastrar cliente:', error);
+        alert('Erro ao cadastrar cliente. Verifique o console para mais detalhes.');
+      }
+    });
+
+    document.getElementById('btnLimparCliente').addEventListener('click', () => {
+      formCliente.reset();
+    });
+
+    async function renderClientes() {
+      try {
+        clientes = await apiGet(API_URLS.clientes);
+        tbodyClientes.innerHTML = '';
+
+        if (clientes.length === 0) {
+            clientesEmpty.style.display = 'block';
+            listaClientesWrapper.style.display = 'none';
+        } else {
+            clientesEmpty.style.display = 'none';
+            listaClientesWrapper.style.display = 'block';
+        }
+
+        clientes.forEach((c, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${c.nome}</td>
+                <td>${c.telefone || '-'}</td>
+                <td>${c.email || '-'}</td>
+                <td>${c.cpf || '-'}</td>
+            `;
+            tbodyClientes.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('Erro ao carregar clientes:', error);
+      }
+    }
+
+    // --- FORNECEDORES ---
+    const formFornecedor = document.getElementById('formFornecedor');
+    const tbodyFornecedores = document.getElementById('tbodyFornecedores');
+    const fornecedoresEmpty = document.getElementById('fornecedoresEmpty');
+    const listaFornecedoresWrapper = document.getElementById('listaFornecedoresWrapper');
+
+    formFornecedor.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('forNome').value.trim();
+      if (!nome) return;
+
+      try {
+        await apiPost(API_URLS.fornecedores, {
+            nome: nome,
+            contato: document.getElementById('forContato').value.trim(),
+            telefone: document.getElementById('forTelefone').value.trim(),
+            email: document.getElementById('forEmail').value.trim(),
+            cnpj: document.getElementById('forCnpj').value.trim(),
+            observacoes: document.getElementById('forObs').value.trim()
+        });
+        
+        formFornecedor.reset();
+        await renderFornecedores();
+        await atualizarKPIs();
+      } catch (error) {
+        console.error('Erro ao cadastrar fornecedor:', error);
+        alert('Erro ao cadastrar fornecedor. Verifique o console para mais detalhes.');
+      }
+    });
+
+    document.getElementById('btnLimparFornecedor').addEventListener('click', () => {
+      formFornecedor.reset();
+    });
+
+    async function renderFornecedores() {
+      try {
+        fornecedores = await apiGet(API_URLS.fornecedores);
+        tbodyFornecedores.innerHTML = '';
+
+        if (fornecedores.length === 0) {
+            fornecedoresEmpty.style.display = 'block';
+            listaFornecedoresWrapper.style.display = 'none';
+        } else {
+            fornecedoresEmpty.style.display = 'none';
+            listaFornecedoresWrapper.style.display = 'block';
+        }
+
+        fornecedores.forEach((f, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${f.nome}</td>
+                <td>${f.contato || '-'}</td>
+                <td>${f.telefone || '-'}</td>
+                <td>${f.email || '-'}</td>
+            `;
+            tbodyFornecedores.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('Erro ao carregar fornecedores:', error);
+      }
+    }
+
+    // --- ESTOQUE ---
+    const formEstoque = document.getElementById('formEstoque');
+    const estoqueGrid = document.getElementById('estoqueGrid');
+    const estoqueEmpty = document.getElementById('estoqueEmpty');
+
+    document.getElementById('btnLimparEstoque').addEventListener('click', () => {
+      formEstoque.reset();
+    });
+
+    formEstoque.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('estNome').value.trim();
+      if (!nome) return;
+
+      try {
+        await apiPost(API_URLS.produtos, {
+            nome: nome,
+            categoria: document.getElementById('estCategoria').value.trim(),
+            tamanho: document.getElementById('estTamanho').value.trim(),
+            cor: document.getElementById('estCor').value.trim(),
+            quantidade: Number(document.getElementById('estQtd').value) || 0,
+            custo_unitario: Number(document.getElementById('estCusto').value) || 0,
+            preco_venda: Number(document.getElementById('estPrecoVenda').value) || 0,
+            descricao: document.getElementById('estDescricao').value.trim()
+        });
+        
+        formEstoque.reset();
+        await renderEstoque();
+        await atualizarKPIs();
+      } catch (error) {
+        console.error('Erro ao cadastrar produto:', error);
+        alert('Erro ao cadastrar produto. Verifique o console para mais detalhes.');
+      }
+    });
+
+    function statusEstoque(qtd) {
+      if (qtd === 0) return { label: 'Sem estoque', cls: 'pill-red' };
+      if (qtd <= 3) return { label: 'Baixo', cls: 'pill-yellow' };
+      return { label: 'OK', cls: 'pill-green' };
+    }
+
+    async function renderEstoque() {
+      try {
+        estoque = await apiGet(API_URLS.produtos);
+        estoqueGrid.innerHTML = '';
+
+        if (estoque.length === 0) {
+            estoqueEmpty.style.display = 'block';
+        } else {
+            estoqueEmpty.style.display = 'none';
+        }
+
+        estoque.forEach(item => {
+            const st = statusEstoque(item.quantidade);
+            const card = document.createElement('div');
+            card.className = 'produto-card';
+
+            card.innerHTML = `
+              <div class="produto-topo">
+                <div class="produto-thumb" style="background: #111827; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px;">
+                  📷
+                </div>
+                <div class="produto-info">
+                  <h4>${item.nome}</h4>
+                  <small>${item.categoria || 'Sem categoria'}</small>
+                  <div class="produto-desc">${item.descricao || 'Sem descrição cadastrada.'}</div>
+                </div>
+              </div>
+              <div class="produto-meta">
+                <span>Tam: ${item.tamanho || '-'}</span>
+                <span>Cor: ${item.cor || '-'}</span>
+                <span>Qtd: ${item.quantidade}</span>
+                <span>Custo: ${formatCurrency(item.custo_unitario)}</span>
+                <span>Venda: ${formatCurrency(item.preco_venda)}</span>
+                <span class="pill ${st.cls}">${st.label}</span>
+              </div>
+              <div class="produto-footer">
+                <div style="font-size:11px;color:var(--muted);">
+                  Total em estoque: <strong>${formatCurrency((item.quantidade || 0) * (item.custo_unitario || 0))}</strong>
+                </div>
+                <div class="produto-actions">
+                  <button class="btn btn-outline btn-small" data-acao="entrada" data-id="${item.id}">Entrada</button>
+                  <button class="btn btn-outline btn-small btn-danger" data-acao="venda" data-id="${item.id}">Venda</button>
+                </div>
+              </div>
+            `;
+
+            const btnEntrada = card.querySelector('[data-acao="entrada"]');
+            const btnVenda = card.querySelector('[data-acao="venda"]');
+
+            btnEntrada.addEventListener('click', async () => {
+                const qtd = Number(prompt('Quantidade de ENTRADA para "' + item.nome + '":', '1')) || 0;
+                if (qtd > 0) {
+                    // Atualizar localmente primeiro para resposta rápida
+                    item.quantidade += qtd;
+                    await renderEstoque();
+                    await atualizarKPIs();
+                    
+                    // Aqui você pode adicionar uma chamada API para atualizar no banco
+                    console.log(`Entrada de ${qtd} unidades para produto ${item.id}`);
+                }
+            });
+
+            btnVenda.addEventListener('click', async () => {
+                const estoqueAtual = item.quantidade || 0;
+                if (estoqueAtual <= 0) {
+                    alert('Sem estoque disponível para venda desta peça.');
+                    return;
+                }
+
+                const qtdStr = prompt(
+                    'Quantidade a VENDER para "' + item.nome + '" (estoque atual: ' + estoqueAtual + '):',
+                    '1'
+                );
+                const qtd = Number(qtdStr) || 0;
+                if (qtd <= 0) return;
+                if (qtd > estoqueAtual) {
+                    alert('Quantidade solicitada maior que o disponível em estoque.');
+                    return;
+                }
+
+                const precoSugestao = (item.preco_venda && item.preco_venda > 0)
+                    ? item.preco_venda
+                    : (item.custo_unitario || 0);
+
+                const precoStr = prompt(
+                    'Preço de venda UNITÁRIO (R$) para "' + item.nome + '":',
+                    String(precoSugestao).replace('.', ',')
+                );
+
+                let precoUnitario = Number(
+                    (precoStr || '').toString().replace(',', '.')
+                ) || precoSugestao;
+
+                try {
+                    await apiPost(API_URLS.vendas, {
+                        produto_id: item.id,
+                        quantidade: qtd,
+                        preco_unitario: precoUnitario
+                    });
+
+                    await renderEstoque();
+                    await renderFinanceiro();
+                    await atualizarKPIs();
+                } catch (error) {
+                    console.error('Erro ao registrar venda:', error);
+                    alert('Erro ao registrar venda. Verifique o console para mais detalhes.');
+                }
+            });
+
+            estoqueGrid.appendChild(card);
+        });
+      } catch (error) {
+        console.error('Erro ao carregar estoque:', error);
+      }
+    }
+
+    // --- FINANCEIRO ---
+    async function renderFinanceiro() {
+        try {
+            const data = await apiGet(API_URLS.dashboard);
+            vendas = await apiGet(API_URLS.vendas);
+
+            const finInvestimentoEstoque = document.getElementById('finInvestimentoEstoque');
+            const finPotencialEstoque = document.getElementById('finPotencialEstoque');
+            const finTotalVendido = document.getElementById('finTotalVendido');
+            const finLucro = document.getElementById('finLucro');
+            const finLucroTag = document.getElementById('finLucroTag');
+
+            finInvestimentoEstoque.textContent = formatCurrency(data.valor_estoque);
+            finTotalVendido.textContent = formatCurrency(data.total_vendido);
+            finLucro.textContent = formatCurrency(data.lucro_total);
+
+            // Calcular potencial de venda
+            const estoqueData = await apiGet(API_URLS.produtos);
+            const potencial = estoqueData.reduce((total, item) => {
+                const qtd = Number(item.quantidade) || 0;
+                const preco = Number(item.preco_venda) || 0;
+                return total + qtd * preco;
+            }, 0);
+            finPotencialEstoque.textContent = formatCurrency(potencial);
+
+            if (data.lucro_total > 0) {
+                finLucroTag.textContent = 'Loja com lucro bruto positivo.';
+                finLucroTag.classList.add('positivo');
+                finLucroTag.classList.remove('negativo');
+            } else if (data.lucro_total < 0) {
+                finLucroTag.textContent = 'Atenção: prejuízo bruto acumulado.';
+                finLucroTag.classList.add('negativo');
+                finLucroTag.classList.remove('positivo');
+            } else {
+                finLucroTag.textContent = 'Sem lucro/prejuízo ainda.';
+                finLucroTag.classList.remove('positivo','negativo');
+            }
+
+            const tbodyVendas = document.getElementById('tbodyVendas');
+            const financeiroEmpty = document.getElementById('financeiroEmpty');
+            const financeiroWrapper = document.getElementById('financeiroWrapper');
+
+            tbodyVendas.innerHTML = '';
+
+            if (vendas.length === 0) {
+                financeiroEmpty.style.display = 'block';
+                financeiroWrapper.style.display = 'none';
+            } else {
+                financeiroEmpty.style.display = 'none';
+                financeiroWrapper.style.display = 'block';
+            }
+
+            const lista = [...vendas];
+            lista.sort((a,b) => (a.data_venda || '').localeCompare(b.data_venda || ''));
+
+            lista.forEach(v => {
+                const lucroLinha = (v.preco_unitario || 0) * (v.quantidade || 0) - (v.custo_unitario || 0) * (v.quantidade || 0);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td>${v.data_venda ? v.data_venda.slice(0,10) : '-'}</td>
+                  <td>${v.produto__nome}</td>
+                  <td>${v.quantidade}</td>
+                  <td>${formatCurrency((v.custo_unitario || 0) * (v.quantidade || 0))}</td>
+                  <td>${formatCurrency((v.preco_unitario || 0) * (v.quantidade || 0))}</td>
+                  <td>
+                    <span class="pill ${lucroLinha >= 0 ? 'pill-green' : 'pill-red'}">
+                      ${formatCurrency(lucroLinha)}
+                    </span>
+                  </td>
+                `;
+                tbodyVendas.appendChild(tr);
+            });
+
+        } catch (error) {
+            console.error('Erro ao carregar financeiro:', error);
+        }
+    }
+
+    // --- INICIALIZAÇÃO ---
+    async function inicializar() {
+        await renderClientes();
+        await renderFornecedores();
+        await renderEstoque();
+        await renderFinanceiro();
+        await atualizarKPIs();
+    }
+    document.getElementById('btnLogout').addEventListener('click', () => {
+    if (confirm('Deseja realmente sair do sistema?')) {
+        window.location.href = '/logout/';
+    }
+});
+    // Iniciar a aplicação
+    document.addEventListener('DOMContentLoaded', inicializar);
+  </script>
+</body>
+</html>
